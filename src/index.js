@@ -13,7 +13,7 @@ let brickWidth = 40;
 let brickHeight = 20;
 let brickPadding = 20;
 let brickOffsetTop = 20;
-let brickOffsetLeft = 55;
+let brickOffsetLeft = 10;
 
 let ball = {
     x: w / 2, y: h - 30,
@@ -21,13 +21,13 @@ let ball = {
     dx: 2, dy: 2
 }
 
-    let bricks = [];
-    for(c=0; c<brickColumnCount; c++) {
-        bricks[c] = [];
-        for(r=0; r<brickRowCount; r++) {
-            bricks[c][r] = { x: 0, y: 0, status: 1 };
-        }
+let bricks = [];
+for(c=0; c<brickColumnCount; c++) {
+    bricks[c] = [];
+    for(r=0; r<brickRowCount; r++) {
+        bricks[c][r] = { x: 0, y: 0, status: 1 };
     }
+}
 
 document.addEventListener('mousemove', mouseMoveHandler, false);
 
@@ -39,18 +39,10 @@ function mouseMoveHandler(e) {
     }
 }
 
-function gameover() {
-    ctx.font = '60px Times New Roman';
-    ctx.fillStyle='#f24343';
-    ctx.strokeStyle='#d63939';
-    ctx.fillText( 'GAME OVER' , w/4, h/2);
-    ctx.strokeText( 'GAME OVER' , w/4, h/2);
-}
-
 function drawBall() {    
     ctx.beginPath();
     ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = "#ef2de5";
     ctx.fill();
     ctx.closePath();
 }
@@ -58,7 +50,7 @@ function drawBall() {
 function drawPlatform() {
     ctx.beginPath();
     ctx.rect(platformPosition, h-platformHeight, platformWidth, platformHeight);
-    ctx.fillStyle = "#0095DD";
+    ctx.fillStyle = "#2e34f2";
     ctx.fill();
     ctx.closePath();
 }
@@ -73,7 +65,7 @@ function drawBricks() {
                 bricks[c][r].y = brickY;
                 ctx.beginPath();
                 ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                ctx.fillStyle = "#0095DD";
+                ctx.fillStyle = "#2e34f2";
                 ctx.fill();
                 ctx.closePath();
             }
@@ -81,7 +73,7 @@ function drawBricks() {
     }
 }
 
-function collision() {
+function breakBricks() {
     for(c=0; c<brickColumnCount; c++) {
     for(r=0; r<brickRowCount; r++) {
         let b = bricks[c][r];
@@ -95,17 +87,23 @@ function collision() {
     }
 }
 
-function draw() {
-    ctx.clearRect(0, 0, w, h);
-    drawBall();
-    drawPlatform(); 
-    drawBricks();
-    collision();   
+function gameover() {
+    ctx.font = '60px Times New Roman';
+    ctx.fillStyle='#f24343';
+    ctx.strokeStyle='#d63939';
+    ctx.fillText( 'GAME OVER' , w/4, h/2);
+    ctx.strokeText( 'GAME OVER' , w/4, h/2);
+}
 
+function changeBallPosition() {
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+}
+
+function checkBallPosition() {
     if(ball.x + ball.dx > w-ball.radius || ball.x + ball.dx < ball.radius) {
         ball.dx = -ball.dx;
     }
-
     if(ball.y + ball.dy < ball.radius) {
         ball.dy = -ball.dy;
     }
@@ -117,16 +115,15 @@ function draw() {
 			gameover();            
         }
     }
-    
-    if(rigtPress && platformPosition < h-ball.radius) {
-        platformPosition += 7;
-    }
-    else if(leftPress && platformPosition > 0) {
-        platformPosition -= 7;
-    }
-
-    ball.x += ball.dx;
-    ball.y += ball.dy;
+    changeBallPosition();    
 }
 
+function draw() {
+    ctx.clearRect(0, 0, w, h);
+    drawBall();
+    drawPlatform(); 
+    drawBricks();
+    breakBricks();
+    checkBallPosition();    
+}
 setInterval(draw, 10);
